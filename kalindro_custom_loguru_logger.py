@@ -2,9 +2,8 @@ import os
 import sys
 import warnings
 
-from loguru import logger
+from loguru import logger as _logger
 
-__all__ = ['default_logger']
 # Define the default log directory path
 DEFAULT_LOG_DIR = "_logs"
 
@@ -37,11 +36,11 @@ class CallableLogger:
 
     def _configure_logger(self, level):
         """Configure the underlying loguru logger."""
-        logger.remove()
+        _logger.remove()
         self._ensure_log_directory()
         logs_path = os.path.join(DEFAULT_LOG_DIR, "errors.log")
-        logger.add(sink=logs_path, level=self.LEVELS['ERROR'], format=self.custom_format)
-        logger.add(sink=sys.stderr, level=level, format=self.custom_format)
+        _logger.add(sink=logs_path, level=self.LEVELS['ERROR'], format=self.custom_format)
+        _logger.add(sink=sys.stderr, level=level, format=self.custom_format)
 
     @staticmethod
     def _ensure_log_directory():
@@ -51,7 +50,7 @@ class CallableLogger:
 
     def __getattr__(self, name):
         """Delegate logging methods to the loguru logger."""
-        return getattr(logger, name)
+        return getattr(_logger, name)
 
 
 # Instantiate the callable logger
