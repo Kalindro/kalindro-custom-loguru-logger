@@ -4,6 +4,7 @@ import warnings
 
 from loguru import logger
 
+__all__ = ['default_logger']
 # Define the default log directory path
 DEFAULT_LOG_DIR = "_logs"
 
