@@ -55,3 +55,5 @@ class CallableLogger:
 
 # Instantiate the callable logger
 default_logger = CallableLogger()
+
+__all__ = ["default_logger"]
