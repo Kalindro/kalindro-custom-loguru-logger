@@ -1,0 +1,1 @@
+Hi, it's my custom logger. Still not sure if it's not better to use default loguru but well.
