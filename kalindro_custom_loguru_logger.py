@@ -46,7 +46,7 @@ class CallableLogger:
     def _ensure_log_directory():
         """Ensure that the log directory exists."""
         if not os.path.exists(DEFAULT_LOG_DIR):
-            warnings.warn(f"Log directory '{DEFAULT_LOG_DIR}' was not found. Please create it manually.")
+            warnings.warn(f"Folder '{DEFAULT_LOG_DIR}' was not found in main directory. Please create it manually.")
 
     def __getattr__(self, name):
         """Delegate logging methods to the loguru logger."""
