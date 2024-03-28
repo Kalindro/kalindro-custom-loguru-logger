@@ -34,7 +34,7 @@ class CallableLogger:
             self.level = level
             self._configure_logger(level)
 
-    def _configure_logger(self, level):
+    def _configure_logger(self, level) -> None:
         """Configure the underlying loguru logger."""
         logger.remove()
         self._ensure_log_directory()
@@ -43,12 +43,12 @@ class CallableLogger:
         logger.add(sink=sys.stderr, level=level, format=self.custom_format)
 
     @staticmethod
-    def _ensure_log_directory():
+    def _ensure_log_directory() -> None:
         """Ensure that the log directory exists."""
         if not os.path.exists(DEFAULT_LOG_DIR):
             warnings.warn(f"Folder '{DEFAULT_LOG_DIR}' was not found in main directory. Please create it manually.")
 
-    def __getattr__(self, name):
+    def __getattr__(self, name) -> logger:
         """Delegate logging methods to the loguru logger."""
         return getattr(logger, name)
 
