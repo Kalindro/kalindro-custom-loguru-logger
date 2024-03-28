@@ -1,5 +1,3 @@
-# logger_config.py
-
 import os
 import sys
 import warnings
@@ -20,7 +18,7 @@ LEVELS = {
 }
 
 
-def setup_logging(level=default_level, log_dir=None):
+def my_config(level=default_level, log_dir=None):
     """
     Reconfigure the loguru logger based on the given log directory and level.
     This function is intended to be used for optional reconfiguration.
@@ -40,7 +38,7 @@ def setup_logging(level=default_level, log_dir=None):
             logger.add(sink=logs_path, level="ERROR", format=custom_format)
 
 
-setup_logging()
+my_config()
 
-logger.my_config = setup_logging
+logger.my_config = my_config
 default_logger = logger
