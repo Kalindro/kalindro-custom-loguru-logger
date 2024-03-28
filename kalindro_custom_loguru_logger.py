@@ -4,40 +4,37 @@ import sys
 import warnings
 
 
-class MyLogger:
+class ExtendedLogger:
     def __init__(self):
         self._logger = logger
         self.default_format = ("<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
                                "<level>{level: <8}</level> | "
                                "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
                                "<level>{message}</level>")
-        # Automatically configure with default settings
+        # Initialize with default configuration
         self.setup_logging()
 
     def setup_logging(self, log_dir=None, level='INFO'):
         """
-        Configures the underlying loguru logger instance with the specified log directory and level.
-        This method can be called multiple times to reconfigure the logger.
+        A method to configure logging. This can be called to reconfigure logging.
         """
-        # Remove all handlers
-        self._logger.remove()
+        self._logger.remove()  # Clear existing handlers
 
-        # Set format and level for stderr
+        # Configure standard output
         self._logger.add(sys.stderr, format=self.default_format, level=level)
 
-        # Configure file logging if a directory is provided
-        if log_dir is not None:
+        # Configure file logging if a directory is specified
+        if log_dir:
             if not os.path.exists(log_dir):
                 warnings.warn(f"Log directory '{log_dir}' does not exist. Logging will proceed to stderr only.")
             else:
-                log_file_path = os.path.join(log_dir, "app.log")
-                self._logger.add(log_file_path, format=self.default_format, level=level, rotation="10 MB")
+                file_path = os.path.join(log_dir, "loguru_logs.log")
+                self._logger.add(file_path, format=self.default_format, level=level, rotation="10 MB")
 
-    def __getattr__(self, name):
+    def __getattr__(self, item):
         """
-        Delegate attribute access to the underlying loguru logger instance.
-        This allows the MyLogger instance to be used just like a loguru logger.
+        Forward attribute access to the underlying loguru logger instance.
         """
-        return getattr(self._logger, name)
+        return getattr(self._logger, item)
 
-default_logger = MyLogger()
+default_logger = ExtendedLogger()
