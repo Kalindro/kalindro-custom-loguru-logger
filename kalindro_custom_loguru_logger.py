@@ -1,7 +1,6 @@
 import os
 import sys
 import warnings
-from typing import Callable
 
 from loguru import logger
 
@@ -37,7 +36,7 @@ class CallableLogger:
             self.level = level
             self._configure_logger(level)
 
-    def _configure_logger(self, level) -> None:
+    def _configure_logger(self, level):
         logger.remove()  # Remove any previously added handlers
         if self.log_dir and os.path.exists(self.log_dir):  # Check if log_dir exists
             logs_path = os.path.join(self.log_dir, "errors.log")
@@ -46,6 +45,10 @@ class CallableLogger:
             warnings.warn(f"Provided log directory '{self.log_dir}' does not exist. Logging will proceed to stderr only.")
         logger.add(sink=sys.stderr, level=level, format=self.custom_format)
 
-    def __getattr__(self, name) -> Callable:
+    def __getattr__(self, name):
         """Delegate logging methods to the loguru logger, with a hint that a callable is returned."""
         return getattr(logger, name)
+
+
+# Instantiate the callable logger
+default_logger = CallableLogger()
