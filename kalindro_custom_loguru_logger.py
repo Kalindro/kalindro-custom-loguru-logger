@@ -1,15 +1,18 @@
 import os
 import sys
 import warnings
+from typing import Callable
 
 from loguru import logger
 
-# Define the default log directory path
-DEFAULT_LOG_DIR = "_logs"
-
 
 class CallableLogger:
-    """A logger that is both callable for setting levels and used for logging."""
+    """A logger that is both callable for setting levels and used for logging, with optional logging directory.
+
+    Parameters:
+    - log_dir: Optional; the directory where logs should be saved. If the directory does not exist,
+      a warning will be issued, and logging will only print to stderr.
+    """
 
     LEVELS = {
         'INFO': 'INFO',
@@ -17,7 +20,8 @@ class CallableLogger:
         'ERROR': 'ERROR'
     }
 
-    def __init__(self):
+    def __init__(self, log_dir=None):
+        self.log_dir = log_dir
         self.custom_format = ("<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
                               "<level>{level: <9}</level> | "
                               "<level>{message}</level> | "
@@ -27,7 +31,6 @@ class CallableLogger:
         self._configure_logger(self.level)
 
     def __call__(self, level=None):
-        """Allow the logger's level to be set by calling the instance."""
         if level:
             if level not in self.LEVELS.values():
                 raise ValueError(f"Invalid logging level: {level}. Available levels are: {list(self.LEVELS.keys())}")
@@ -35,23 +38,14 @@ class CallableLogger:
             self._configure_logger(level)
 
     def _configure_logger(self, level) -> None:
-        """Configure the underlying loguru logger."""
-        logger.remove()
-        self._ensure_log_directory()
-        logs_path = os.path.join(DEFAULT_LOG_DIR, "errors.log")
-        logger.add(sink=logs_path, level=self.LEVELS['ERROR'], format=self.custom_format)
+        logger.remove()  # Remove any previously added handlers
+        if self.log_dir and os.path.exists(self.log_dir):  # Check if log_dir exists
+            logs_path = os.path.join(self.log_dir, "errors.log")
+            logger.add(sink=logs_path, level=self.LEVELS['ERROR'], format=self.custom_format)
+        elif self.log_dir:
+            warnings.warn(f"Provided log directory '{self.log_dir}' does not exist. Logging will proceed to stderr only.")
         logger.add(sink=sys.stderr, level=level, format=self.custom_format)
 
-    @staticmethod
-    def _ensure_log_directory() -> None:
-        """Ensure that the log directory exists."""
-        if not os.path.exists(DEFAULT_LOG_DIR):
-            warnings.warn(f"Folder '{DEFAULT_LOG_DIR}' was not found in main directory. Please create it manually.")
-
-    def __getattr__(self, name) -> logger:
-        """Delegate logging methods to the loguru logger."""
+    def __getattr__(self, name) -> Callable:
+        """Delegate logging methods to the loguru logger, with a hint that a callable is returned."""
         return getattr(logger, name)
-
-
-# Instantiate the callable logger
-default_logger = CallableLogger()
