@@ -2,43 +2,44 @@ import os
 import sys
 import warnings
 
-from loguru import logger
+from loguru._logger import Core as _Core, Logger as _Logger
 
-default_level = 'INFO'
-custom_format = ("<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
-                 "<level>{level: <9}</level> | "
-                 "<level>{message}</level> | "
-                 "<blue>{function}</blue> | "
-                 "<magenta>{file}:{line}</magenta>")
+_default_level = 'INFO'
+_custom_format = ("<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
+                  "<level>{level: <9}</level> | "
+                  "<level>{message}</level> | "
+                  "<blue>{function}</blue> | "
+                  "<magenta>{file}:{line}</magenta>")
 
-LEVELS = {
+_LEVELS = {
     'INFO': 'INFO',
     'DEBUG': 'DEBUG',
     'ERROR': 'ERROR'
 }
 
 
-def my_config(level=default_level, log_dir=None):
-    """
-    Reconfigure the loguru logger based on the given log directory and level.
-    This function is intended to be used for optional reconfiguration.
-    """
+class ConfiguredLoguru(_Logger):
+    def __init__(self, level=_default_level, log_dir=None):
+        core = _Core()
+        super().__init__(core=core, exception=None, depth=0, record=False, lazy=False, colors=False, raw=False, capture=True, patchers=[], extra={})
+        self.my_config(level, log_dir)
 
-    logger.remove()  # Clear existing handlers
-    if level:
-        if level not in LEVELS.values():
-            raise ValueError(f"Invalid logging level: {level}. Available levels are: {list(LEVELS.keys())}")
-        logger.add(sink=sys.stderr, level=level, format=custom_format)
+    def my_config(self, level=_default_level, log_dir=None):
+        """
+        Reconfigure the logger based on the given log directory and level.
+        """
+        self.remove()  # Clear existing handlers
+        if level not in _LEVELS:
+            raise ValueError(f"Invalid logging level: {level}. Available levels are: {list(_LEVELS.keys())}")
+        self.add(sink=sys.stderr, level=level, format=_custom_format)
 
-    if log_dir:
-        if not os.path.exists(log_dir):
-            warnings.warn(f"Provided log directory '{log_dir}' does not exist. Logging will proceed to stderr only.")
-        else:
-            logs_path = os.path.join(log_dir, "loguru_logs.log")
-            logger.add(sink=logs_path, level="ERROR", format=custom_format)
+        if log_dir:
+            if not os.path.exists(log_dir):
+                warnings.warn(f"Provided log directory '{log_dir}' does not exist. Logging will proceed to stderr only.")
+            else:
+                logs_path = os.path.join(log_dir, "loguru_logs.log")
+                self.add(sink=logs_path, level="ERROR", format=_custom_format)
 
 
-my_config()
-
-logger.my_config = my_config
-default_logger = logger
+# Usage
+default_logger = ConfiguredLoguru()
