@@ -132,3 +132,6 @@ cython_debug/
 .idea
 
 # Project
+new_app.py
+backup_logger.py
+test.py
