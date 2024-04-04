@@ -65,7 +65,7 @@ class ConfiguredLoguru(_Logger):
         if os.path.exists(logs_path):
             os.remove(logs_path)
 
-        self.add(sink=logs_path, level=level, format=_CUSTOM_FORMAT)
+        self.add(sink=logs_path, level=level, format=_CUSTOM_FORMAT, rotation="100 MB")
 
 
 # Make the class initialize on startup
