@@ -6,15 +6,7 @@ from typing import Literal
 
 from loguru._logger import Core as _Core, Logger as _Logger
 
-
 # Custom logging format, it's pretty
-def formatter(record):
-    if "no_console_traceback" in record["extra"]:
-        return _CUSTOM_FORMAT_CONSOLE
-    else:
-        return _CUSTOM_FORMAT_CONSOLE + "{exception}"
-
-
 _CUSTOM_FORMAT_FILE = ("<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
                        "<level>{level: <9}</level> | "
                        "<level>{message}</level> | "
@@ -26,6 +18,14 @@ _CUSTOM_FORMAT_CONSOLE = ("<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
                           "<level>{message}</level> | "
                           "<blue>{function}</blue> | "
                           "<magenta>{file}:{line}</magenta>\n")
+
+
+def formatter(record):
+    if "no_console_traceback" in record["extra"]:
+        return _CUSTOM_FORMAT_CONSOLE
+    else:
+        return _CUSTOM_FORMAT_CONSOLE + "{exception}"
+
 
 # Available logging levels
 _LogLevelsType = Literal["DEBUG", "INFO", "ERROR"]
@@ -61,7 +61,7 @@ class ConfiguredLoguru(_Logger):
 
         self.add(sink=sys.stderr, level=level.upper(), format=formatter)
 
-    def set_logs_dump_location(self, log_dir, level: _LogLevelsType = "ERROR"):
+    def set_logs_dump_location(self, log_dir: os.PathLike, level: _LogLevelsType = "ERROR", max_MB_size: int = 50):
         """Set logs directory location to dump. Also removes directory dump handlers."""
         if level not in _VALID_LEVELS:
             raise ValueError(f"Invalid logging level: {level}. Available levels are: {_VALID_LEVELS}")
@@ -79,7 +79,7 @@ class ConfiguredLoguru(_Logger):
         if os.path.exists(logs_path):
             os.remove(logs_path)
 
-        self.add(sink=logs_path, level=level, format=_CUSTOM_FORMAT_FILE, rotation="100 MB")
+        self.add(sink=logs_path, level=level, format=_CUSTOM_FORMAT_FILE, rotation=f"{max_MB_size} MB")
 
 
 # Make the class initialize on startup
