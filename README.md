@@ -1,3 +1,5 @@
+# kalindro-custom-loguru-logger
+
 Hi, it's my custom logger. Loguru is great, I just made few changes, done through inheritance, 
 to simplify for my use case, still returns the Loguru logger so everything is compatible.
 
